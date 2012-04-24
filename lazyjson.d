@@ -17,12 +17,18 @@ private struct JSONValue{
 
 }
 
+
+/**
+ * A class used to represent a JSON object 
+ */
 public class JSON{
 	
 	private JSONValue[string] fields;
 		
 	
-	// construct a new JSON object.
+	/**
+	 * Construct a new JSON object from the given string
+	 */
 	public this(char[] jsonstring){
 		char[][] fields = getFields(jsonstring);
 		foreach(char[] pair; fields){
@@ -121,7 +127,9 @@ public class JSON{
 	}
 
 	/** 
-	 * strip outer quotes from the given string. This is useful for turning keys or string values into raw literals. */
+	 * Strip outer quotes from the given string. 
+	 * This is useful for turning keys or string values into raw literals. 
+	 */
 	private string stripQuotes(char[] str){
 		if(str[0] == '"' && str[str.length - 1] == '"'){
 			return str[1 .. str.length - 1];
@@ -133,7 +141,10 @@ public class JSON{
 
 
 	/**
-	 * gets the string at the given value.
+	 * Reads the JSON at the given key and returns the value as a string.
+	 *
+	 * Throws a JSONParseException is the data being retrieved is not in fact
+	 * a string.
 	 */
 	public string getString(string key){
 		if(!(key in fields)){
@@ -144,11 +155,23 @@ public class JSON{
 		}
 	}
 
-
+	/**
+	 * Reads the JSON at the given key and returns the value as an int.
+	 *
+   	 * Throws a JSONParseException is the data being retrieved is not in fact
+	 * an int.
+	 */
 	public int getInt(string key){
 		return toInt(fields[key].value);	
 	}
 
+	
+	/**
+	 * Reads the JSON at the given key and returns the value as a double. 
+	 *
+	 * Throws a JSONParseException is the data being retrieved is not in fact
+	 * a double.
+	 */
 	public double getDouble(string key){
 		return toDouble(fields[key].value);				
 	}
@@ -161,6 +184,7 @@ public class JSON{
 	
 	/**
 	 * checks to see if a given key is the JSON object 
+	 * @param key the key for the JSON object.
 	 */
 	public bool checkForKey(string key){
 		return cast(bool)(key in fields);	
