@@ -1,0 +1,36 @@
+LazyJSON
+Lee Avital
+
+
+##########################
+#  About		 #
+##########################
+LazyJSON is utility for parsing JSON formatted data in the D programming language. It is called LazyJSON because it only parses
+JSON down one level. 
+
+
+##########################
+#  Usage		 #
+##########################
+Make sure lazyjson.d is in your compile path.
+
+Create a new JSON object with the JSON as a string.
+
+	JSON myJsonObject = new JSON("{\"name\":\"My JSON OBJECT\"}");
+
+To retrieve call the following methods of the JSON object:
+
+	int getInt(string key);
+	double getDouble(string key);
+	string getString(string key);
+	
+
+	int[] getIntArray(string key);
+	double[] getDoubleArray(string key);
+	string[] getStringArray(string key);
+
+	
+	JSON getJSON(string key);
+
+
+
