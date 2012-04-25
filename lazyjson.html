@@ -44,12 +44,31 @@ Throws a JSONParseException is the data being retrieved is not in fact
  @param <i>key</i> the <i>key</i> for the JSON object.<br><br>
 
 </dd>
-</dl>
-</dd>
-<dt><big>class <u>JSONParseException</u>: object.Exception;
+<dt><big>string[] <u>getStringArray</u>(string <i>key</i>);
 </big></dt>
-<dd>custom exception class for lazy json. <br><br>
+<dd>Gets the string array the the given <i>key</i>
+<br><br>
+Throws a JSONParseException is the data being retrieved is not in fact
+ a string.<br><br>
 
+</dd>
+<dt><big>double[] <u>getDoubleArray</u>(string <i>key</i>);
+</big></dt>
+<dd>Get the double array at the given <i>key</i>.
+<br><br>
+Throws a JSONParseException is the data being retrieved is not in fact
+ a string.<br><br>
+
+</dd>
+<dt><big>int[] <u>getIntArray</u>(string <i>key</i>);
+</big></dt>
+<dd>Get the int array at the given <i>key</i>.
+<br><br>
+Throws a JSONParseException is the data being retrieved is not in fact
+ a string.<br><br>
+
+</dd>
+</dl>
 </dd>
 </dl>
 

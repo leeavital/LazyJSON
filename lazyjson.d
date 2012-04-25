@@ -192,6 +192,12 @@ public class JSON{
 
 
 
+	/**
+	 * Gets the string array the the given key
+	 *
+	 * Throws a JSONParseException is the data being retrieved is not in fact
+	 * a string.
+	 */
 	public string[] getStringArray(string key){
 		
 		// get the element
@@ -209,6 +215,12 @@ public class JSON{
 	}
 
 
+	/**
+	 * Get the double array at the given key.
+	 *
+	 * Throws a JSONParseException is the data being retrieved is not in fact
+	 * a string.
+	 */
 	public double[] getDoubleArray(string key){
 		
 		// get an string array representation of the array.
@@ -227,6 +239,12 @@ public class JSON{
 
 
 
+	/**
+	 * Get the int array at the given key.
+	 * 
+	 * Throws a JSONParseException is the data being retrieved is not in fact
+	 * a string.
+	 */
 	public int[] getIntArray(string key){
 		string[] stringArr = getStringArray(key);
 		int[] intArr = new int[stringArr.length];
@@ -247,7 +265,7 @@ public class JSON{
 }
 
 /** custom exception class for lazy json. */
-class JSONParseException : Exception{
+private class JSONParseException : Exception{
 	public this(string msg){
 		super(msg);
 	}
