@@ -12,7 +12,7 @@ private enum JSONFieldType{
 }
 
 private struct JSONValue{
-	string value;
+	char[] value;
 	JSONFieldType type;		
 
 }
@@ -65,7 +65,7 @@ public class JSON{
 
 			
 			//writefln("storing key=%s in value=%s", key, jsonPair.value);
-			this.fields[key] = jsonPair;
+			this.fields[cast(string)(key)] = jsonPair;
 	
 		}
 		
@@ -83,7 +83,7 @@ public class JSON{
 		int colonIndex = 0;
 		for(int i = 0 ; i < jsonPair.length; i++){
 			if(jsonPair[i] == ':'){
-				return [ jsonPair[0 .. i] , jsonPair[i+1 .. jsonPair.length] ];
+				return [ jsonPair[0 .. i] , jsonPair[i+1 .. $] ];
 			}
 		}
 		// throw an exception here.
@@ -99,7 +99,7 @@ public class JSON{
 		int length = jsonstring.length;	
 		
 		// strip the JSON string of it's encapsulating curly braces.
-		jsonstring = jsonstring[1 .. (length - 1)];
+		jsonstring = jsonstring[1 .. ($ - 1)];
 		//writefln("the jsonstring with it's curly braces removed:\n%s", jsonstring);
 				
 		
@@ -130,7 +130,7 @@ public class JSON{
 	 * Strip outer quotes from the given string. 
 	 * This is useful for turning keys or string values into raw literals. 
 	 */
-	private string stripQuotes(char[] str){
+	private char[] stripQuotes(char[] str){
 		if(str[0] == '"' && str[str.length - 1] == '"'){
 			return str[1 .. str.length - 1];
 		}else{
@@ -146,7 +146,7 @@ public class JSON{
 	 * Throws a JSONParseException is the data being retrieved is not in fact
 	 * a string.
 	 */
-	public string getString(string key){
+	public char[] getString(string key){
 		if(!(key in fields)){
 			throw new JSONParseException("The data at \"" ~ key ~ "\" was not found in the JSON object.");
 		
@@ -162,7 +162,7 @@ public class JSON{
 	 * an int.
 	 */
 	public int getInt(string key){
-		return toInt(fields[key].value);	
+		return to!int(fields[key].value);	
 	}
 
 	
@@ -173,7 +173,7 @@ public class JSON{
 	 * a double.
 	 */
 	public double getDouble(string key){
-		return toDouble(fields[key].value);				
+		return to!double(fields[key].value);				
 	}
 
 
@@ -209,8 +209,8 @@ public class JSON{
 		
 		// get rid of the square brackets and split into tokens.
 		arrString = arrString[1 .. arrString.length - 1];
-		string[] tokens  = split(arrString, ",");
-		return tokens;
+		char[][] tokens  = split(arrString, ",");
+		return cast(string[])(tokens);
 
 	}
 
@@ -232,7 +232,7 @@ public class JSON{
 		double[] doubles = new double[doubleStrings.length];
 		foreach(int i, string s; doubleStrings){
 			writefln("attempting to return: %s", s);
-			doubles[i] = std.conv.toDouble(s);
+			doubles[i] = to!double(s);
 		}
 		return doubles;
 	}
@@ -250,7 +250,7 @@ public class JSON{
 		int[] intArr = new int[stringArr.length];
 
 		foreach(int i, string s; stringArr){
-			intArr[i] = std.conv.toInt(s);
+			intArr[i] = s.to!int(); //std.conv.toInt(s);
 		}
 
 		return intArr;
@@ -275,15 +275,16 @@ private class JSONParseException : Exception{
 // imports just for the main
 import std.file;
 
+
 void main(){
 	string jsonstring = "{ \"glossary\": { \"title\": \"example glossary\", \"GlossDiv\": {\"title\": \"S\",\"GlossList\": {\"GlossEntry\": {\"ID\": \"SGML\", \"SortAs\": \"SGML\",\"GlossTerm\": \"Standard Generalized Markup Language\",\"Acronym\": \"SGML\",\"Abbrev\": \"ISO 8879:1986\",\"GlossDef\": {\"para\": \"A meta-markup language, used to create markup languages such as DocBook.\",\"GlossSeeAlso\": [\"GML\", \"XML\"]},\"GlossSee\": \"markup\"}}}}}";
 	writefln(jsonstring);
 	
-	JSON j = new JSON(jsonstring);
+	JSON j = new JSON(cast(char[])(jsonstring));
 	JSON glossary = j.getJSON("glossary");
 	writefln(glossary.getString("title"));
 
 	JSON glossentry = glossary.getJSON("GlossDiv").getJSON("GlossList").getJSON("GlossEntry");
 
-	writefln(glossentry.getString("ID"));	
+	writefln("GlossDiv.GlossList.GlossEntry=%s", glossentry.getString("ID"));	
 }
