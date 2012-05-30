@@ -2,6 +2,8 @@ import std.stdio;
 import std.array;
 import std.string;
 import std.conv;
+import object;
+
 
 private enum JSONFieldType{
 	NUMERIC,
@@ -24,7 +26,15 @@ private struct JSONValue{
 public class JSON{
 	
 	private JSONValue[string] fields;
-		
+	
+
+	
+	/**
+	 * Construct a new JSON object from the given string.
+	 */
+	public this(string jsonstring){
+		this(cast(char[])(jsonstring));
+	}
 	
 	/**
 	 * Construct a new JSON object from the given string
@@ -33,7 +43,7 @@ public class JSON{
 		char[][] fields = getFields(jsonstring);
 		foreach(char[] pair; fields){
 
-			writefln("we are treating a key: %s", pair);
+			//writefln("we are treating a key: %s", pair);
 			pair = strip(pair); // get rid of any whitespace.
 			char[][] keyValue = getKeyValuePair(pair);
 			
@@ -69,11 +79,44 @@ public class JSON{
 	
 		}
 		
-	
+		
+
 	
 	}
 
-	
+
+
+
+	public void extend(string key, double value){
+		JSONValue v;
+		char[] sValue = cast(char[])(format("%f", value));
+		v.type = JSONFieldType.NUMERIC;
+		v.value = sValue;
+		fields[key] = v;
+	}
+ 
+
+ 	public void extend(string key, int value){
+		JSONValue v = {
+			type: JSONFieldType.NUMERIC,
+			value: cast(char[])(format("%d", value))
+		};
+		fields[key] = v;
+	}
+
+	public void extend(string key, string value){
+		JSONValue v = {
+			type: JSONFieldType.STRING,
+			value: cast(char[])(value)
+		};
+		fields[key] = v;
+	}
+
+
+
+	public string[] getKeys(){
+		return fields.keys;
+	}
 	
 	/**
 	 * splits up a string in the form of a JSON key value pair into two
@@ -131,6 +174,7 @@ public class JSON{
 	 * This is useful for turning keys or string values into raw literals. 
 	 */
 	private char[] stripQuotes(char[] str){
+		str = strip(str);
 		if(str[0] == '"' && str[str.length - 1] == '"'){
 			return str[1 .. str.length - 1];
 		}else{
@@ -146,12 +190,12 @@ public class JSON{
 	 * Throws a JSONParseException is the data being retrieved is not in fact
 	 * a string.
 	 */
-	public char[] getString(string key){
+	public string getString(string key){
 		if(!(key in fields)){
 			throw new JSONParseException("The data at \"" ~ key ~ "\" was not found in the JSON object.");
 		
 		}else{
-			return fields[key].value;
+			return cast(string)(fields[key].value);
 		}
 	}
 
@@ -210,6 +254,10 @@ public class JSON{
 		// get rid of the square brackets and split into tokens.
 		arrString = arrString[1 .. arrString.length - 1];
 		char[][] tokens  = split(arrString, ",");
+		foreach(int i, char[] value;tokens){
+			tokens[i] = stripQuotes(value);
+		
+		}
 		return cast(string[])(tokens);
 
 	}
@@ -231,7 +279,7 @@ public class JSON{
 		// now loop throught the strings and convert to doubles.
 		double[] doubles = new double[doubleStrings.length];
 		foreach(int i, string s; doubleStrings){
-			writefln("attempting to return: %s", s);
+			//writefln("attempting to return: %s", s);
 			doubles[i] = to!double(s);
 		}
 		return doubles;
@@ -257,11 +305,6 @@ public class JSON{
 	}
 
 
-
-
-
-
-
 }
 
 /** custom exception class for lazy json. */
@@ -272,19 +315,48 @@ private class JSONParseException : Exception{
 }
 
 
-// imports just for the main
-import std.file;
 
 
 void main(){
-	string jsonstring = "{ \"glossary\": { \"title\": \"example glossary\", \"GlossDiv\": {\"title\": \"S\",\"GlossList\": {\"GlossEntry\": {\"ID\": \"SGML\", \"SortAs\": \"SGML\",\"GlossTerm\": \"Standard Generalized Markup Language\",\"Acronym\": \"SGML\",\"Abbrev\": \"ISO 8879:1986\",\"GlossDef\": {\"para\": \"A meta-markup language, used to create markup languages such as DocBook.\",\"GlossSeeAlso\": [\"GML\", \"XML\"]},\"GlossSee\": \"markup\"}}}}}";
-	writefln(jsonstring);
+	// empty main method that doesn't do anything.		
+}
+
+unittest{
+
+	writefln("beginning unittest for lazyjson.d\n\n");
 	
-	JSON j = new JSON(cast(char[])(jsonstring));
-	JSON glossary = j.getJSON("glossary");
-	writefln(glossary.getString("title"));
+	writefln("Test 1.0--parsing");
+	string jsonstring = "{\"name\":\"Lee Avital\", \"siblings\":[\"Lori\", \"Abigail\"]}";
+	writefln("We are parsing the string: %s", jsonstring);
+	JSON j = new JSON(jsonstring);
+	if(j) writefln("success!\n");
+	else writefln("failure\n");
 
-	JSON glossentry = glossary.getJSON("GlossDiv").getJSON("GlossList").getJSON("GlossEntry");
+	writef("Test 1.1: shallow retrieval...");
+	string name = j.getString("name");
+	if(name == "Lee Avital"){ writef("success!\n"); }
+	else{ writef("failure\n"); }
 
-	writefln("GlossDiv.GlossList.GlossEntry=%s", glossentry.getString("ID"));	
+	writef("Test 1.2: deep retrieval...");
+	string[] siblings = j.getStringArray("siblings");
+	if(siblings[0] == "Lori" && siblings[1] == "Abigail"){ writef("success!\n"); }
+	else{ writef("failure\n"); }
+
+	
+	writef("Test 1.3: shallow extending...");
+	j.extend("mynum", 2);
+	if(j.getDouble("mynum") == 2){  writef("success\n"); }
+	else{ writef("failure\n"); }
+	
+
+	writef("Test 1.4: deep extending...");
+	j.extend("myarr", "[2,3,4]");
+	int[] arr = j.getIntArray("myarr");
+	if(arr[0] == 2 && arr[1] == 3 && arr[2] == 4){
+		writef("success\n");
+	}
+	else{
+		writef("failure");
+	}
+
 }
