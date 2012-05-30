@@ -353,10 +353,18 @@ unittest{
 	j.extend("myarr", "[2,3,4]");
 	int[] arr = j.getIntArray("myarr");
 	if(arr[0] == 2 && arr[1] == 3 && arr[2] == 4){
-		writef("success\n");
+		writef("success\n\n\n");
 	}
 	else{
-		writef("failure");
+		writef("failure\n\n\n");
 	}
+
+
+	jsonstring = "{\"name\":\"My App\", \"permissions\":[\"google.com\", \"facebook.com\"], \"browser_action\":{\"icon\":\"icon.png\", \"caption\":\"click me!\"}}";
+	writefln("Test 2.0: parsing");
+	writefln("Parsing the string: %s", jsonstring);
+	j = new JSON(jsonstring);
+	if(j){ writefln("success!"); }
+	else{ writefln("failure"); }
 
 }
