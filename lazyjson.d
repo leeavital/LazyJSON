@@ -337,7 +337,7 @@ unittest{
 	if(name == "Lee Avital"){ writef("success!\n"); }
 	else{ writef("failure\n"); }
 
-	writef("Test 1.2: deep retrieval...");
+	writef("Test 1.2: mid-level retrieval...");
 	string[] siblings = j.getStringArray("siblings");
 	if(siblings[0] == "Lori" && siblings[1] == "Abigail"){ writef("success!\n"); }
 	else{ writef("failure\n"); }
@@ -364,7 +364,36 @@ unittest{
 	writefln("Test 2.0: parsing");
 	writefln("Parsing the string: %s", jsonstring);
 	j = new JSON(jsonstring);
-	if(j){ writefln("success!"); }
-	else{ writefln("failure"); }
+	if(j){ writefln("success!\n"); }
+	else{ writefln("failure\n"); }
+
+	writef("Test 2.1: shallow retrival...");
+	// name already declared.
+	name = j.getString("name");
+	if(name == "My App"){ writef("success!\n"); }
+	else{ writef("failure\n"); }
+
+	
+	writef("Test 2.2: mid-level retrival...");
+	string[] arr2 = j.getStringArray("permissions");
+	if(arr2[0] == "google.com" && arr2[1] == "facebook.com"){
+		writef("success!\n");
+	}
+	else{
+		writef("failure\n");
+	}
+
+
+	
+	writef("Test 2.3: deep retrival...");
+	JSON jLow = j.getJSON("browser_action"); // lol, jay-lo
+	if(jLow.getString("icon") == "icon.png" && jLow.getString("caption") == "click me!"){
+		writef("success!\n");
+	}
+	else{
+		writef("failure\n");
+	}
+
+
 
 }
